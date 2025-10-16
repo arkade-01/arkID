@@ -14,7 +14,7 @@ const Waitlist = () => {
   });
   
   const [discountApplied, setDiscountApplied] = useState(false);
-  const [discountAmount] = useState(30000); // Full discount amount
+  const discountAmount = 30000; // Full discount amount
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -211,7 +211,7 @@ const Waitlist = () => {
                 <h3 className="text-xl font-bold text-black mb-2">ArkCard</h3>
                 <div className="flex items-center gap-3">
                   <p className={`text-2xl font-bold ${discountApplied ? 'text-gray-400 line-through' : 'text-black'}`}>
-                    ₦ 30,000.00
+                    ₦ {discountAmount.toLocaleString()}.00
                   </p>
                   {discountApplied && (
                     <p className="text-2xl font-bold text-black">
@@ -257,20 +257,20 @@ const Waitlist = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
                     <span className={`font-semibold ${discountApplied ? 'text-gray-400 line-through' : ''}`}>
-                      ₦ 30,000.00
+                      ₦ {discountAmount.toLocaleString()}.00
                     </span>
                   </div>
                   {discountApplied && (
                     <div className="flex justify-between">
                       <span className="text-green-600">Discount Applied</span>
-                      <span className="font-semibold text-green-600">-₦ 30,000.00</span>
+                      <span className="font-semibold text-green-600">-₦ {discountAmount.toLocaleString()}.00</span>
                     </div>
                   )}
                   <hr className="border-gray-200" />
                   <div className="flex justify-between">
                     <span className="text-gray-600">Total</span>
                     <span className="font-semibold">
-                      ₦ {discountApplied ? '0.00' : '30,000.00'}
+                      ₦ {discountApplied ? '0.00' : `${discountAmount.toLocaleString()}.00`}
                     </span>
                   </div>
                 </div>
@@ -308,7 +308,7 @@ const Waitlist = () => {
                 <h3 className="text-xl font-bold text-black mb-2">ArkCard</h3>
                 <div className="flex items-center gap-3">
                   <p className={`text-2xl font-bold ${discountApplied ? 'text-gray-400 line-through' : 'text-black'}`}>
-                    ₦ 30,000.00
+                    ₦ {discountAmount.toLocaleString()}.00
                   </p>
                   {discountApplied && (
                     <p className="text-2xl font-bold text-black">
@@ -346,20 +346,20 @@ const Waitlist = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
                     <span className={`font-semibold ${discountApplied ? 'text-gray-400 line-through' : ''}`}>
-                      ₦ 30,000.00
+                      ₦ {discountAmount.toLocaleString()}.00
                     </span>
                   </div>
                   {discountApplied && (
                     <div className="flex justify-between">
                       <span className="text-green-600">Discount Applied</span>
-                      <span className="font-semibold text-green-600">-₦ 30,000.00</span>
+                      <span className="font-semibold text-green-600">-₦ {discountAmount.toLocaleString()}.00</span>
                     </div>
                   )}
                   <hr className="border-gray-200" />
                   <div className="flex justify-between">
                     <span className="text-gray-600">Total</span>
                     <span className="font-semibold">
-                      ₦ {discountApplied ? '0.00' : '30,000.00'}
+                      ₦ {discountApplied ? '0.00' : `${discountAmount.toLocaleString()}.00`}
                     </span>
                   </div>
                 </div>
