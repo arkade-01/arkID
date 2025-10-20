@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useDiscount, useOrder } from "../hooks";
+import type { OrderData } from "../api/config";
 
 const Waitlist = () => {
   const [paymentMethod, setPaymentMethod] = useState<'arkpay' | 'card'>('card');
@@ -10,11 +12,21 @@ const Waitlist = () => {
     state: '',
     zipcode: '',
     linktree: '',
+    email: '',
+    phone: '',
     discountCode: ''
   });
   
   const [discountApplied, setDiscountApplied] = useState(false);
   const discountAmount = 30000; // Full discount amount
+
+  // Custom hooks
+  const { applyDiscount, isLoading: discountLoading, error: discountError } = useDiscount();
+  const { submitOrder, isLoading: orderLoading, error: orderError } = useOrder();
+
+  // Combined loading and error states
+  const isLoading = discountLoading || orderLoading;
+  const error = discountError || orderError;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -25,18 +37,56 @@ const Waitlist = () => {
     setPaymentMethod(method);
   };
 
-  const handleApplyDiscount = () => {
-    if (formData.discountCode) {
+  const handleApplyDiscount = async () => {
+    if (!formData.discountCode) return;
+    
+    const isValid = await applyDiscount(formData.discountCode);
+    
+    if (isValid) {
       setDiscountApplied(true);
-      // Handle discount application logic here
       console.log('Discount applied:', formData.discountCode);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
+    
+    // Validate required fields
+    if (!formData.name || !formData.address || !formData.country || !formData.state || !formData.zipcode || !formData.email || !formData.phone) {
+      return;
+    }
+    
+    // Only process card payments for now
+    if (paymentMethod === 'card') {
+      const orderData: OrderData = {
+        name: formData.name,
+        cardLink: formData.linktree || 'https://example.com/card', // Use linktree as card link or default
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.state, // Using state as city for now
+        state: formData.state,
+        currency: 'NGN', // Nigerian Naira
+        email: formData.email,
+        amount: discountApplied ? 0 : discountAmount, // 0 if discount applied, otherwise full amount
+        discountCode: discountApplied ? formData.discountCode : undefined
+      };
+      
+      const result = await submitOrder(orderData);
+      
+      if (result?.success) {
+        if (result.completed) {
+          // Order completed with discount - redirect to callback page with success status
+          const callbackUrl = `/payment/callback?status=success&reference=${result.order?.reference || 'discount'}&order=${result.order?._id || 'completed'}`;
+          window.location.href = callbackUrl;
+        } else if (result.paymentUrl) {
+          // Redirect to payment
+          window.location.href = result.paymentUrl;
+        }
+      }
+    } else {
+      // ArkPay integration - placeholder for now
+      console.log('ArkPay integration is coming soon');
+    }
   };
 
   return (
@@ -119,7 +169,7 @@ const Waitlist = () => {
                     </div>
                   </div>
                   
-    <div>
+                  <div>
                     <input
                       type="url"
                       name="linktree"
@@ -128,6 +178,31 @@ const Waitlist = () => {
                       onChange={handleInputChange}
                       className="w-full px-3 py-3 bg-gray-50 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                     />
+                  </div>
+                  
+                  {/* Email and Phone on single line */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <input
+                        type="email"
+                        name="email"
+                        placeholder="Email address"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-3 bg-gray-50 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                      />
+                    </div>
+                    
+                    <div>
+                      <input
+                        type="tel"
+                        name="phone"
+                        placeholder="Phone number"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-3 bg-gray-50 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -243,10 +318,10 @@ const Waitlist = () => {
                   <button
                     type="button"
                     onClick={handleApplyDiscount}
-                    disabled={!formData.discountCode || discountApplied}
+                    disabled={!formData.discountCode || discountApplied || isLoading}
                     className="px-4 py-3 bg-black text-white rounded-md hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base"
                   >
-                    {discountApplied ? 'Applied' : 'Apply'}
+                    {isLoading ? 'Verifying...' : discountApplied ? 'Applied' : 'Apply'}
                   </button>
                 </div>
               </div>
@@ -276,13 +351,21 @@ const Waitlist = () => {
                 </div>
               </div>
               
+              {/* Error Display */}
+              {error && (
+                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                  {error}
+                </div>
+              )}
+              
               {/* Pay Button */}
               <button
                 type="submit"
                 onClick={handleSubmit}
-                className="w-full bg-black text-white py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 transition-colors"
+                disabled={isLoading}
+                className="w-full bg-black text-white py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
-                Pay
+                {isLoading ? 'Processing...' : 'Pay'}
               </button>
             </div>
           </div>
@@ -332,10 +415,10 @@ const Waitlist = () => {
                   <button
                     type="button"
                     onClick={handleApplyDiscount}
-                    disabled={!formData.discountCode || discountApplied}
+                    disabled={!formData.discountCode || discountApplied || isLoading}
                     className="px-4 py-3 bg-black text-white rounded-md hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors whitespace-nowrap text-base"
                   >
-                    {discountApplied ? 'Applied' : 'Apply'}
+                    {isLoading ? 'Verifying...' : discountApplied ? 'Applied' : 'Apply'}
                   </button>
                 </div>
               </div>
@@ -365,13 +448,21 @@ const Waitlist = () => {
                 </div>
               </div>
               
+              {/* Error Display */}
+              {error && (
+                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                  {error}
+                </div>
+              )}
+              
               {/* Pay Button */}
               <button
                 type="submit"
                 onClick={handleSubmit}
-                className="w-full bg-black text-white py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 transition-colors"
+                disabled={isLoading}
+                className="w-full bg-black text-white py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
-                Pay
+                {isLoading ? 'Processing...' : 'Pay'}
               </button>
             </div>
           </div>
