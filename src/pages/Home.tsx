@@ -1,16 +1,21 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router";
+import type { Transition } from "framer-motion";
 
 const Home = () => {
   // Subtle shake variants for different cards
-  const shakeVariants = [
+  const shakeVariants: Array<{
+    x: number[];
+    y: number[];
+    transition: Transition;
+  }> = [
     {
       x: [0, -1, 1, -0.5, 0.5, 0],
       y: [0, 0.5, -0.5, 1, -1, 0],
       transition: {
         duration: 3,
         repeat: Infinity,
-        ease: "easeInOut" as any,
+        ease: "easeInOut",
       },
     },
     {
@@ -19,7 +24,7 @@ const Home = () => {
       transition: {
         duration: 3.5,
         repeat: Infinity,
-        ease: "easeInOut" as any,
+        ease: "easeInOut",
         delay: 0.2,
       },
     },
@@ -29,7 +34,7 @@ const Home = () => {
       transition: {
         duration: 3.2,
         repeat: Infinity,
-        ease: "easeInOut" as any,
+        ease: "easeInOut",
         delay: 0.4,
       },
     },
@@ -39,7 +44,7 @@ const Home = () => {
       transition: {
         duration: 3.8,
         repeat: Infinity,
-        ease: "easeInOut" as any,
+        ease: "easeInOut",
         delay: 0.6,
       },
     },
@@ -49,7 +54,7 @@ const Home = () => {
       transition: {
         duration: 3.3,
         repeat: Infinity,
-        ease: "easeInOut" as any,
+        ease: "easeInOut",
         delay: 0.8,
       },
     },
@@ -59,7 +64,7 @@ const Home = () => {
       transition: {
         duration: 3.6,
         repeat: Infinity,
-        ease: "easeInOut" as any,
+        ease: "easeInOut",
         delay: 1,
       },
     },

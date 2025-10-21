@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useDiscount, useOrder } from "../hooks";
+import type { OrderData } from "../api/config";
 
 const Waitlist = () => {
-  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [paymentMethod, setPaymentMethod] = useState<"arkpay" | "card">("card");
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -16,33 +18,50 @@ const Waitlist = () => {
   });
 
   const [discountApplied, setDiscountApplied] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const discountAmount = 30000;
 
-  const handleInputChange = (e) => {
+  // Custom hooks
+  const {
+    applyDiscount,
+    isLoading: discountLoading,
+    error: discountError,
+  } = useDiscount();
+  const {
+    submitOrder,
+    isLoading: orderLoading,
+    error: orderError,
+  } = useOrder();
+
+  // Combined loading and error states
+  const isLoading = discountLoading || orderLoading;
+  const error = discountError || orderError;
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePaymentMethodChange = (method) => {
+  const handlePaymentMethodChange = (method: "arkpay" | "card") => {
     setPaymentMethod(method);
   };
 
   const handleApplyDiscount = async () => {
     if (!formData.discountCode) return;
-    setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    const isValid = await applyDiscount(formData.discountCode);
+
+    if (isValid) {
       setDiscountApplied(true);
-      setIsLoading(false);
-    }, 1000);
+      console.log("Discount applied:", formData.discountCode);
+    }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate required fields
     if (
       !formData.name ||
       !formData.address ||
@@ -52,20 +71,46 @@ const Waitlist = () => {
       !formData.email ||
       !formData.phone
     ) {
-      setError("Please fill in all required fields");
       return;
     }
 
-    setIsLoading(true);
-    // Simulate payment processing
-    setTimeout(() => {
-      setIsLoading(false);
-      alert("Order submitted successfully!");
-    }, 2000);
+    // Only process card payments for now
+    if (paymentMethod === "card") {
+      const orderData: OrderData = {
+        name: formData.name,
+        cardLink: formData.linktree || "https://example.com/card", // Use linktree as card link or default
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.state, // Using state as city for now
+        state: formData.state,
+        currency: "NGN", // Nigerian Naira
+        email: formData.email,
+        amount: discountApplied ? 0 : discountAmount, // 0 if discount applied, otherwise full amount
+        discountCode: discountApplied ? formData.discountCode : undefined,
+      };
+
+      const result = await submitOrder(orderData);
+
+      if (result?.success) {
+        if (result.completed) {
+          // Order completed with discount - redirect to callback page with success status
+          const callbackUrl = `/payment/callback?status=success&reference=${
+            result.order?.reference || "discount"
+          }&order=${result.order?._id || "completed"}`;
+          window.location.href = callbackUrl;
+        } else if (result.paymentUrl) {
+          // Redirect to payment
+          window.location.href = result.paymentUrl;
+        }
+      }
+    } else {
+      // ArkPay integration - placeholder for now
+      console.log("ArkPay integration is coming soon");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 font-sans">
+    <div className="min-h-screen bg-gray-200 font-custom">
       <div className="container mx-auto px-4 py-4 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Left Column - Form */}
@@ -233,11 +278,12 @@ const Waitlist = () => {
                     />
                   </svg>
                 </div>
-                <div className="grid grid-cols-1 sm:flex gap-2">
+
+                <div className="flex flex-col sm:flex-row gap-2 justify-center lg:justify-start">
                   <button
                     type="button"
                     onClick={() => handlePaymentMethodChange("arkpay")}
-                    className={`flex items-center justify-center gap-2 px-4 py-3 cursor-pointer border transition-all text-base ${
+                    className={`flex items-center justify-center gap-2 px-4 py-3 border transition-all text-base ${
                       paymentMethod === "arkpay"
                         ? "bg-black text-white border-black"
                         : "bg-gray-100 text-black border-gray-300 hover:bg-gray-200"
@@ -254,7 +300,7 @@ const Waitlist = () => {
                   <button
                     type="button"
                     onClick={() => handlePaymentMethodChange("card")}
-                    className={`flex items-center cursor-pointer justify-center gap-2 px-4 py-3 border transition-all text-base ${
+                    className={`flex items-center justify-center gap-2 px-4 py-3 border transition-all text-base ${
                       paymentMethod === "card"
                         ? "bg-black text-white border-black"
                         : "bg-gray-100 text-black border-gray-300 hover:bg-gray-200"
@@ -283,14 +329,18 @@ const Waitlist = () => {
           <div className="lg:hidden order-1">
             <div>
               {/* Product Display */}
-              <div className="mb-6 flex flex-col items-center justify-center">
+              <div className="mb-6">
                 <motion.div
                   initial={{ rotate: -5 }}
                   whileHover={{ rotate: 0, scale: 1.05 }}
                   transition={{ type: "spring", stiffness: 300 }}
                   className="mb-4 transform"
                 >
-                  <img src="/ark-pay-payment.svg" alt="" />
+                  <img
+                    src="/ark-pay-payment.svg"
+                    alt="Bigshot ArkCard"
+                    className="w-[400px] mx-auto"
+                  />
                 </motion.div>
 
                 <h3 className="text-[30px] font-bold text-black mb-2 text-center">
@@ -405,14 +455,18 @@ const Waitlist = () => {
           <div className="hidden lg:block lg:col-span-1 lg:order-2">
             <div>
               {/* Product Display */}
-              <div className="mb-6 flex flex-col items-center justify-center">
+              <div className="mb-6">
                 <motion.div
                   initial={{ rotate: -5 }}
                   whileHover={{ rotate: 0, scale: 1.05 }}
                   transition={{ type: "spring", stiffness: 300 }}
                   className="mb-4 transform"
                 >
-                  <img src="/ark-pay-payment.svg" alt="" />
+                  <img
+                    src="/ark-pay-payment.svg"
+                    alt="Bigshot ArkCard"
+                    className="w-full h-auto"
+                  />
                 </motion.div>
 
                 <h3 className="text-xl font-bold text-black mb-2 text-center">
