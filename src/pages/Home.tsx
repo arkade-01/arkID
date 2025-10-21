@@ -67,7 +67,6 @@ const Home = () => {
 
   return (
     <main className="min-h-screen bg-[#D9D9D9] relative flex flex-col">
-      {/* Question mark icon */}
       <div className="absolute top-4 right-4 sm:top-8 sm:right-8">
         <Link to="/howto">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-black flex items-center justify-center text-lg sm:text-xl font-bold hover:bg-black hover:text-white transition-colors cursor-pointer">
@@ -75,27 +74,24 @@ const Home = () => {
           </div>
         </Link>
       </div>
-      
-      {/* Hero Section */}
+
       <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-8">
         <div className="flex flex-col items-center justify-center gap-4 sm:gap-6 max-w-4xl mx-auto">
-          <h1 className="font-custom font-light text-4xl sm:text-5xl lg:text-[100px] text-[#1C1C1E] leading-[100%] tracking-tight text-center">
+          <h1 className="font-custom font-light text-4xl sm:text-5xl lg:text-[60px] text-[#1C1C1E] leading-[100%] tracking-tight text-center">
             Get in the <span className="font-black">ARK</span>
           </h1>
-          <p className="text-sm sm:text-base lg:text-[30px] leading-tight font-light text-center max-w-2xl">
+          <p className="text-sm sm:text-base lg:text-[20px] leading-tight font-light text-center max-w-2xl">
             A securely designed payment method that actually sails.
           </p>
           <Link to="/waitlist">
-            <button className="bg-[#1C1C1E] font-light text-white text-base sm:text-lg lg:text-[20px] px-6 sm:px-8 py-3 sm:py-4 rounded-lg mt-2 sm:mt-4 hover:bg-[#2C2C2E] transition-colors w-full sm:w-auto">
+            <button className="bg-[#1C1C1E] font-light text-white text-base sm:text-lg lg:text-[20px] rounded-[11.25px] mt-2 sm:mt-4 hover:bg-[#2C2C2E] transition-colors w-[500px] px-4 cursor-pointer h-[50px] sm:w-auto">
               JOIN THE WAITLIST
             </button>
           </Link>
         </div>
       </div>
 
-      {/* Mobile Card Display */}
-      <div className="relative w-full h-48 sm:h-64 lg:h-80 overflow-hidden">
-        {/* Mobile: Show only 2 cards */}
+      <div className="relative w-full h-48 sm:h-64 lg:h-40 overflow-hidden">
         <motion.img
           src="/Bigshot-Card-back-one.svg"
           alt="Card-one"
@@ -110,8 +106,7 @@ const Home = () => {
           className="absolute bottom-0 left-[50%] sm:left-[15%] w-32 sm:w-48 lg:w-64 h-auto"
           style={{ transform: "rotate(-8deg)" }}
         />
-        
-        {/* Desktop: Show all cards */}
+
         <motion.img
           src="/Bigshot-Card-back-three.svg"
           alt="Card-three"
