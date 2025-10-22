@@ -385,11 +385,11 @@ const Waitlist = () => {
                     type="button"
                     onClick={handleApplyDiscount}
                     disabled={
-                      !formData.discountCode || discountApplied || isLoading
+                      !formData.discountCode || discountApplied || discountLoading
                     }
                     className="px-4 py-3 bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base"
                   >
-                    {isLoading
+                    {discountLoading
                       ? "Verifying..."
                       : discountApplied
                       ? "Applied"
@@ -505,11 +505,11 @@ const Waitlist = () => {
                     type="button"
                     onClick={handleApplyDiscount}
                     disabled={
-                      !formData.discountCode || discountApplied || isLoading
+                      !formData.discountCode || discountApplied || discountLoading
                     }
                     className="px-4 py-3 bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors whitespace-nowrap text-base"
                   >
-                    {isLoading
+                    {discountLoading
                       ? "Verifying..."
                       : discountApplied
                       ? "Applied"
