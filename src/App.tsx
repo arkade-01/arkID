@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Info from "./pages/Info";
 import Waitlist from "./pages/Waitlist";
 import PaymentCallback from "./pages/PaymentCallback";
+// Payment routes for callback handling
 
 function App() {
   return (

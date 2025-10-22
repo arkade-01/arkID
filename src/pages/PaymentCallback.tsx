@@ -115,7 +115,7 @@ const PaymentCallback = () => {
           </motion.div>
         )}
 
-        {/* Order Reference */}
+        {/* Order References */}
         {reference && (
           <motion.div
             initial={{ opacity: 0 }}
