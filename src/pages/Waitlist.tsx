@@ -18,7 +18,8 @@ const Waitlist = () => {
   });
 
   const [discountApplied, setDiscountApplied] = useState(false);
-  const discountAmount = 30000;
+  const discountAmount = 30000; // Amount in kobo (30000 kobo = ₦300.00)
+  const displayAmount = discountAmount / 100; // Convert to main currency for display
 
   // Custom hooks
   const {
@@ -354,7 +355,7 @@ const Waitlist = () => {
                         : "text-[#1C1C1E]"
                     }`}
                   >
-                    ₦ {discountAmount.toLocaleString()}.00
+                    ₦ {displayAmount.toLocaleString()}.00
                   </p>
                   {discountApplied && (
                     <p className="text-2xl font-bold text-[#1C1C1E]">₦ 0.00</p>
@@ -408,14 +409,14 @@ const Waitlist = () => {
                         discountApplied ? "text-gray-400 line-through" : ""
                       }`}
                     >
-                      ₦ {discountAmount.toLocaleString()}.00
+                      ₦ {displayAmount.toLocaleString()}.00
                     </span>
                   </div>
                   {discountApplied && (
                     <div className="flex justify-between">
                       <span className="text-green-600">Discount Applied</span>
                       <span className="font-semibold text-green-600">
-                        -₦ {discountAmount.toLocaleString()}.00
+                        -₦ {displayAmount.toLocaleString()}.00
                       </span>
                     </div>
                   )}
@@ -426,7 +427,7 @@ const Waitlist = () => {
                       ₦{" "}
                       {discountApplied
                         ? "0.00"
-                        : `${discountAmount.toLocaleString()}.00`}
+                        : `${displayAmount.toLocaleString()}.00`}
                     </span>
                   </div>
                 </div>
@@ -480,7 +481,7 @@ const Waitlist = () => {
                         : "text-[#1C1C1E]"
                     }`}
                   >
-                    ₦ {discountAmount.toLocaleString()}.00
+                    ₦ {displayAmount.toLocaleString()}.00
                   </p>
                   {discountApplied && (
                     <p className="text-2xl font-regular text-[#1C1C1E]">
@@ -528,14 +529,14 @@ const Waitlist = () => {
                         discountApplied ? "text-gray-400 line-through" : ""
                       }`}
                     >
-                      ₦ {discountAmount.toLocaleString()}.00
+                      ₦ {displayAmount.toLocaleString()}.00
                     </span>
                   </div>
                   {discountApplied && (
                     <div className="flex justify-between">
                       <span className="text-green-600">Discount Applied</span>
                       <span className="font-semibold text-green-600">
-                        -₦ {discountAmount.toLocaleString()}.00
+                        -₦ {displayAmount.toLocaleString()}.00
                       </span>
                     </div>
                   )}
@@ -546,7 +547,7 @@ const Waitlist = () => {
                       ₦{" "}
                       {discountApplied
                         ? "0.00"
-                        : `${discountAmount.toLocaleString()}.00`}
+                        : `${displayAmount.toLocaleString()}.00`}
                     </span>
                   </div>
                 </div>
