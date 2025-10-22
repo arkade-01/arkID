@@ -18,7 +18,7 @@ const Waitlist = () => {
   });
 
   const [discountApplied, setDiscountApplied] = useState(false);
-  const discountAmount = 30000; // Amount in kobo (30000 kobo = ₦300.00)
+  const discountAmount = 3000000; // Amount in kobo (3000000 kobo = ₦30,000.00)
   const displayAmount = discountAmount / 100; // Convert to main currency for display
 
   // Custom hooks
