@@ -1,22 +1,23 @@
 import { motion } from 'framer-motion';
-import { usePaymentSuccess } from '../hooks';
 
 const PaymentCallback = () => {
-  // Get all parameters from URL
+  // Get all parameters from URL (set by backend redirect)
   const urlParams = new URLSearchParams(window.location.search);
   const reference = urlParams.get('reference') || undefined;
-  const orderId = urlParams.get('order') || undefined;
   const status = urlParams.get('status') || 'verifying'; // success, failed, error
   const message = urlParams.get('message') || undefined;
   
-  // Always use the hook for verification
-  const { status: paymentStatus, isLoading, refreshStatus } = usePaymentSuccess(reference, orderId);
+  // Check if we're on a success page without status parameter
+  const currentPath = window.location.pathname;
+  const isSuccessPage = currentPath === '/payment/success';
+  const isFailedPage = currentPath === '/payment/failed';
+  const isErrorPage = currentPath === '/payment/error';
 
   const getStatusInfo = () => {
-    // If URL has explicit status, use that
-    if (status === 'success') {
+    // Check path-based status first (for backend redirects without status param)
+    if (isSuccessPage || status === 'success') {
       return {
-        title: 'Payment Successful!',
+        title: 'Payment Verified!',
         message: 'Your order has been confirmed and payment processed successfully.',
         icon: '✅',
         color: 'text-green-600',
@@ -24,7 +25,7 @@ const PaymentCallback = () => {
       };
     }
     
-    if (status === 'failed') {
+    if (isFailedPage || status === 'failed') {
       return {
         title: 'Payment Failed',
         message: 'There was an issue processing your payment. Please try again.',
@@ -34,7 +35,7 @@ const PaymentCallback = () => {
       };
     }
     
-    if (status === 'error') {
+    if (isErrorPage || status === 'error') {
       return {
         title: 'Payment Error',
         message: message || 'An unexpected error occurred while processing your payment.',
@@ -44,49 +45,14 @@ const PaymentCallback = () => {
       };
     }
 
-    // If no explicit status, use background verification result
-    switch (paymentStatus) {
-      case 'completed':
-        return {
-          title: 'Payment Successful!',
-          message: 'Your order has been confirmed and payment processed successfully.',
-          icon: '✅',
-          color: 'text-green-600',
-          showEmailMessage: true
-        };
-      case 'pending':
-        return {
-          title: 'Payment Pending',
-          message: 'Your payment is being processed. Please wait a moment.',
-          icon: '⏳',
-          color: 'text-yellow-600',
-          showEmailMessage: false
-        };
-      case 'failed':
-        return {
-          title: 'Payment Failed',
-          message: 'There was an issue processing your payment. Please try again.',
-          icon: '❌',
-          color: 'text-red-600',
-          showEmailMessage: false
-        };
-      case 'error':
-        return {
-          title: 'Verification Error',
-          message: 'Unable to verify payment status. Please contact support.',
-          icon: '⚠️',
-          color: 'text-red-600',
-          showEmailMessage: false
-        };
-      default:
-        return {
-          title: 'Verifying Payment...',
-          message: 'Please wait while we confirm your payment.',
-          icon: '🔄',
-          color: 'text-blue-600',
-          showEmailMessage: false
-        };
-    }
+    // Default to verifying if no status
+    return {
+      title: 'Verifying Payment...',
+      message: 'Please wait while we verify your payment status.',
+      icon: '⏳',
+      color: 'text-blue-600',
+      showEmailMessage: false
+    };
   };
 
   const statusInfo = getStatusInfo();
@@ -162,17 +128,6 @@ const PaymentCallback = () => {
           </motion.div>
         )}
 
-        {/* Loading Spinner */}
-        {isLoading && status === 'verifying' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center justify-center mb-4"
-          >
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-            <span className="ml-2 text-sm text-gray-600">Verifying payment...</span>
-          </motion.div>
-        )}
 
         {/* Action Buttons */}
         <motion.div
@@ -232,15 +187,6 @@ const PaymentCallback = () => {
             </>
           )}
           
-          {statusInfo.title === 'Payment Pending' && (
-            <button
-              onClick={refreshStatus}
-              disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
-            >
-              {isLoading ? 'Checking...' : 'Refresh Status'}
-            </button>
-          )}
         </motion.div>
 
         {/* Support Information */}

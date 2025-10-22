@@ -90,7 +90,7 @@ const Home = () => {
           </p>
           <Link to="/waitlist">
             <button className="bg-[#1C1C1E] font-light text-white text-base sm:text-lg lg:text-[20px] rounded-[11.25px] mt-2 sm:mt-4 hover:bg-[#2C2C2E] transition-colors lg:w-[500px] w-[250px] px-4 cursor-pointer h-[50px] sm:w-auto">
-              JOIN THE WAITLIST
+              GET YOURS  
             </button>
           </Link>
         </div>
